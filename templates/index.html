@@ -114,9 +114,10 @@
 
                 {%if projeto%}
                 <legend>Projeto: {{projeto.name}}</legend>
-
                 <input type="hidden" id="pid" value="{{projeto.eid}}">
-
+                {%endif%}
+                {%if milestone%}
+                <input type="hidden" id="mid" value="{{milestone.eid}}">
                 {%endif%}
 
                 <div class="row">

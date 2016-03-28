@@ -122,10 +122,12 @@ def complete_issue(issue):
     
     if issue['project_id']:
         proj = Projects.get(eid=issue['project_id'])
+        proj['eid'] = proj.eid
         issue['project'] = proj
     
     if issue['milestone_id']:
         milestone = Milestones.get(eid=issue['milestone_id'])
+        milestone['eid'] = milestone.eid
         issue['milestone'] = milestone
     
     return issue
