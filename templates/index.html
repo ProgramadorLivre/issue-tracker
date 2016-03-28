@@ -72,22 +72,32 @@
 
                 <div class="addfield">
                     <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Novo milestone">
+                        {%if projeto%}
+                        <input type="hidden" id="milestone-pid" value="{{projeto.eid}}">
+                        {%endif%}
+                        <input id="milestonename" type="text" class="form-control" placeholder="Novo milestone">
                         <span class="input-group-btn">
-                            <button class="btn btn-default" type="button"><i class="fa fa-plus"></i></button>
+                            <button id="addmilestone" class="btn btn-default" type="button"><i class="fa fa-plus"></i></button>
                         </span>
                     </div>
                 </div>
                 <div class="listlateral">
-                    <table class="table table-condensed" id="tb-projetos">
+                    <table class="table table-condensed" id="tb-milestones">
                     <thead>
                         <tr>
                             <th>Milestones</th>
+                            <th>&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>Versão 1.0</td></tr>
-                        <tr><td>Versão 2.0</td></tr>
+                        {%for mil in milestones%}
+                        <tr>
+                        <td><a href="/{{projeto.slug}}/{{mil.slug}}/" data-eid="{{mil.eid}}" class="load-m-btn">{{mil.name}}</a></td>
+                        <td><a href="#" data-eid="{{mil.eid}}" class="delete-m-btn"><i class="fa fa-trash-o"></i></a></td>
+                        </tr>
+                        {%else%}
+                        <tr><td class="norows" colspan="2"> - no milestones - </td></tr>
+                        {%endfor%}
                     </tbody>
                     </table>
                 </div>

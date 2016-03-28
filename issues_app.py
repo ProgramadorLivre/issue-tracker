@@ -15,6 +15,21 @@ app = Flask(__name__)
 app.debug = True
 
 
+def valid_slug(obj, text):
+    
+    newslug = slugify(text)
+    s = newslug
+
+    ct = 0
+    while True:
+        have = obj.get(Filter.slug==newslug)
+        if not have:
+            return newslug
+        else:
+            ct+=1
+            newslug = "%s-%d" % (s, ct)
+
+
 @app.route("/")
 def index():
     projetos = Projects.all()
@@ -25,7 +40,7 @@ def index():
 def addprojetc():
     data = request.form.get 
 
-    newp = Projects.insert({"name": data("name"), "slug":slugify(data("name"))})
+    newp = Projects.insert({"name": data("name"), "slug":valid_slug(Projects,data("name"))})
     newproject = Projects.get(eid=newp)
     newproject['eid'] = newproject.eid
 
@@ -34,7 +49,7 @@ def addprojetc():
 
 @app.route("/rm_project", methods=("POST",))
 def del_project():
-    data = request.form.get 
+    data = request.form.get
     
     pid = int(data("pid"))
 
@@ -45,8 +60,24 @@ def del_project():
 
 @app.route("/add_milestone", methods=("POST",))
 def addmilestone():
-    print(request.form )
-    return jsonify({"status":"ok","message":"Milestone added"})
+    data = request.form.get
+
+    newp = Milestones.insert({"name": data("name"), "project_id": int(data("pid")), "slug": valid_slug(Milestones,data("name"))})
+    newmilestone = Milestones.get(eid=newp)
+    newmilestone['eid'] = newmilestone.eid
+
+    return jsonify({"status": "ok", "message":"Milestone added", "object": newmilestone })
+
+
+@app.route("/rm_milestone", methods=("POST",))
+def del_milestone():
+    data = request.form.get 
+    
+    mid = int(data("mid"))
+
+    Milestones.remove(eids=[mid])
+
+    return jsonify({"status":"ok","message":"Milestone removed" })
 
 
 @app.route("/add_issue", methods=("POST",))
@@ -60,12 +91,35 @@ def listissues(project_slug):
     projeto = Projects.get(Filter.slug==project_slug)
     if not projeto:
         return redirect("/")
+    projeto['eid'] = projeto.eid
     projetos = Projects.all()
-    milestones = Milestones.get(Filter.project_id==projeto.eid)
+    milestones = Milestones.search(Filter.project_id==projeto.eid)
     issueslist = Issues.get(Filter.project_id==projeto.eid)
 
     #return jsonify({"status":"ok", "projeto": projeto, "issueslist": issueslist})
-    return render_template("index.html", projetos = projetos, projeto = projeto, issueslist = issueslist)
+    return render_template("index.html", projetos = projetos, milestones = milestones, projeto = projeto, issueslist = issueslist)
+
+
+@app.route("/<project_slug>/<milestone_slug>/")
+def listissuesmilestone(project_slug, milestone_slug):
+
+    projeto = Projects.get(Filter.slug==project_slug)
+    if not projeto:
+        return redirect("/")
+    projeto['eid'] = projeto.eid
+
+    milestone = Milestones.get( (Filter.project_id==projeto.eid) & (Filter.slug==milestone_slug) )
+    if not milestone:
+        return redirect("listissues", project_slug=project_slug)
+    milestone['eid'] = milestone.eid
+
+    issueslist = Issues.get( (Filter.project_id==projeto.eid) & (Filter.milestone_id==milestone.eid) )
+
+    projetos = Projects.all()
+    milestones = Milestones.search( Filter.project_id==projeto.eid )
+
+    #return jsonify({"status":"ok", "projeto": projeto, "issueslist": issueslist})
+    return render_template("index.html", projetos = projetos, milestones = milestones, projeto = projeto, milestone = milestone, issueslist = issueslist)
 
 
 if __name__ == '__main__':
