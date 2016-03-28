@@ -1,0 +1,29 @@
+{
+  "name": "issues",
+  "authors": [
+    "Sérgio Berlotto Jr <sergio.berlotto@gmail.com>"
+  ],
+  "description": "issue tracker",
+  "main": "",
+  "moduleType": [],
+  "keywords": [
+    "issues",
+    "tracker",
+    "python",
+    "flask"
+  ],
+  "license": "MIT",
+  "homepage": "http://programadorlivre.com",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "font-awesome": "fontawesome#^4.5.0"
+  }
+}

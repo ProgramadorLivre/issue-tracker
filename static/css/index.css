@@ -1,0 +1,30 @@
+
+*{
+    font-family: "Arimo";
+}
+
+.addfield{
+    margin-bottom: 10px;
+}
+
+.newtask{
+    margin-top: 10px;
+}
+
+.listagem{
+    margin-top: 20px;
+}
+
+.listagem .table>thead {
+    background-color: #F1F1F1;
+    border-bottom: 0px;
+}
+
+.listagem .table th{
+    border-bottom: 0px;
+}
+
+ td.colicon{
+    width: 50px;
+    overflow: hidden;
+ }

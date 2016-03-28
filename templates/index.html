@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    
+    <title>Issues - Programador Livre</title>
+    <meta name="description" content="The simple Programadorlivre issue tracker">
+    <meta name="author" content="Sérgio Berlotto - ProgramadorLivre.com">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <link href='https://fonts.googleapis.com/css?family=Arimo:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+    
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="/static/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/bower_components/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/css/index.css">
+
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <div class="row">
+                <div class="col-lg-1">
+                    <img src="http://placehold.it/100x70" class="image-responsive" alt="Issues icon"> 
+                </div>
+                <div class="col-lg-4 col-lg-offset-1">
+                    <h2>The issues tracker</h2>
+                </div>
+                <div class="col-lg-6 text-right">
+                    <p>Some action icons</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 lateral">
+                <!-- Coluna lateral INICIO -->
+
+                <div class="addfield">
+                    <div class="input-group">
+                        <input id="projectname" type="text" class="form-control" placeholder="Novo projeto">
+                        <span class="input-group-btn">
+                            <button id="addproject" class="btn btn-default" type="button"><i class="fa fa-plus"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="listlateral">
+                    <table class="table table-condensed" id="tb-projetos">
+                    <thead>
+                        <tr>
+                            <th>Projeto</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for p in projetos%}
+                        <tr {%if projeto and projeto.eid == p.eid%}class="active"{%endif%}>
+                        <td><a href="/{{p.slug}}/" data-eid="{{p.eid}}" class="load-p-btn">{{p.name}}</a></td>
+                        <td><a href="#" data-eid="{{p.eid}}" class="delete-p-btn"><i class="fa fa-trash-o"></i></a></td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                    </table>
+                </div>
+
+                <div class="addfield">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Novo milestone">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button"><i class="fa fa-plus"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="listlateral">
+                    <table class="table table-condensed" id="tb-projetos">
+                    <thead>
+                        <tr>
+                            <th>Milestones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Versão 1.0</td></tr>
+                        <tr><td>Versão 2.0</td></tr>
+                    </tbody>
+                    </table>
+                </div>
+
+
+                <!-- Coluna lateral FIM -->
+            </div>
+            <div class="col-lg-9 principal">
+                <!-- coluna dos dados -->
+
+               
+
+            <fieldset>
+
+                {%if projeto%}
+                <legend>Projeto: {{projeto.name}}</legend>
+
+                <input type="hidden" id="pid" value="{{projeto.eid}}">
+
+                {%endif%}
+
+                <div class="row">
+                    <div class="col-lg-3">
+                        <select name="tipo" id="tipo" class="form-control">
+                            <option value=""> - Tipo - </option>
+                            <option value="bug">Bug</option>
+                            <option value="melhoria">Melhoria</option>
+                            <option value="tarefa">Tarefa</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
+                        <select name="prioridade" id="prioridade" class="form-control">
+                            <option value=""> - Prioridade - </option>
+                            <option value="alta">Alta</option>
+                            <option value="meduia">Média</option>
+                            <option value="baixa">Baixa</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
+                        <select name="milestone" id="milestone" class="form-control">
+                            <option value=""> - Milestone - </option>
+                            <option value="v10"> Versão 1.0</option>
+                            <option value="v20"> Versão 2.0 </option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
+                        <select name="status" id="status" class="form-control">
+                            <option value=""> - Status - </option>
+                            <option value="backlog"> Backlog</option>
+                            <option value="programada"> Programada </option>
+                            <option value="emandamento"> Em andamento </option>
+                            <option value="concluida"> Concluída </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row newtask">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Nova issue ...">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button"><i class="fa fa-plus"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            
+            </fieldset>
+
+                <div class="row listagem">
+                    <div class="col-lg-12">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Milestone</th>
+                                    <th class="text-center colicon">Status</th>
+                                    <th class="text-center colicon">Poridade</th>
+                                    <th class="text-center colicon">Tipo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Tarefa 1</td>
+                                    <td>Versão 1.0</td>
+                                    <td class="text-center colicon"><i class="fa fa-play"></i></td>
+                                    <td class="text-center colicon"><i class="fa fa-arrow-up"></i></td>
+                                    <td class="text-center colicon"><i class="fa fa-bug"></i></td>
+                                </tr>                                
+                                <tr>
+                                    <td>Tarefa 2</td>
+                                    <td>Versão 1.0</td>
+                                    <td class="text-center colicon"><i class="fa fa-play"></i></td>
+                                    <td class="text-center colicon"><i class="fa fa-arrow-up"></i></td>
+                                    <td class="text-center colicon"><i class="fa fa-bug"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script typet="text/javascript" src="/static/bower_components/jquery/dist/jquery.min.js"></script>
+    <script typet="text/javascript" src="/static/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script typet="text/javascript" src="/static/js/index.js"></script>
+
+</body>
+</html>
