@@ -15,12 +15,13 @@ $(document).ready(function(){
                 line += "</tr>";
 
                 $('#tb-projetos > tbody:last-child').append(line);
+                $(".delete-p-btn").click(fc_delete_p);
             }
             $("#projectname").val("");
         });
     });
 
-    $(".delete-p-btn").click(function(){
+    var fc_delete_p = function(){
         var tr = $(this).closest('tr');
         $.post({
             url: "/rm_project",
@@ -36,6 +37,81 @@ $(document).ready(function(){
             return false;
         });
         return false;
+    };
+    $(".delete-p-btn").click(fc_delete_p);
+
+    $("#addmilestone").click(function(){
+        $.post({
+            url:"/add_milestone",
+            data:{
+                name: $("#milestonename").val(),
+                pid: $("#milestone-pid").val()
+            }
+        }).success(function(data){
+            if(data.status=="ok"){
+
+                line = "<tr>";
+                line += "<td><a href=\"/"+data.object.slug+"/\" data-eid=\""+data.object.eid+"\" class=\"load-p-btn\">"+data.object.name+"</a></td>";
+                line += "<td><a href=\"#\" data-eid=\""+data.object.eid+"\" class=\"delete-m-btn\"><i class=\"fa fa-trash-o\"></i></a></td>";
+                line += "</tr>";
+
+                $('#tb-milestones > tbody:last-child').append(line);
+                $(".delete-m-btn").click(fc_delete_m);
+            }
+            $("#milestonename").val("");
+        });
+    });
+
+    var fc_delete_m = function(){
+        var tr = $(this).closest('tr');
+        $.post({
+            url: "/rm_milestone",
+            data:{
+                mid: $(this).attr("data-eid")
+            }
+        }).success(function(){
+            tr.css("background-color","#FF3700");
+            tr.fadeOut(400, function(){
+                tr.remove();
+            });
+            return false;
+        });
+        return false;
+    };
+    $(".delete-m-btn").click(fc_delete_m);
+
+    $("#btn-add-issue").click(function(){
+        var name = $("#issuename").val();
+        var pid = $("#pid").val();
+        var tipo = $("#tipo").val();
+        var prioridade = $("#prioridade").val();
+        var milestone = $("#milestone").val();
+        var status = $("#status").val();
+
+        $.post({
+            url:"/add_issue",
+            data:{
+                name: name,
+                pid: pid,
+                mid: milestone,
+                prioridade: prioridade,
+                status: status,
+                tipo: tipo
+            }
+        }).success(function(data){
+            if(data.status=="ok"){
+
+                line = "<tr>";
+                line += "<td><a href=\"/"+data.object.slug+"/\" data-eid=\""+data.object.eid+"\" class=\"load-p-btn\">"+data.object.name+"</a></td>";
+                line += "<td><a href=\"#\" data-eid=\""+data.object.eid+"\" class=\"delete-m-btn\"><i class=\"fa fa-trash-o\"></i></a></td>";
+                line += "</tr>";
+
+                $('#tb-issues > tbody:last-child').append(line);
+                $(".delete-m-btn").click(fc_delete_m);
+            }
+            $("#milestonename").val("");
+        });
+
     });
 
 });

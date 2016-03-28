@@ -72,22 +72,32 @@
 
                 <div class="addfield">
                     <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Novo milestone">
+                        {%if projeto%}
+                        <input type="hidden" id="milestone-pid" value="{{projeto.eid}}">
+                        {%endif%}
+                        <input id="milestonename" type="text" class="form-control" placeholder="Novo milestone">
                         <span class="input-group-btn">
-                            <button class="btn btn-default" type="button"><i class="fa fa-plus"></i></button>
+                            <button id="addmilestone" class="btn btn-default" type="button"><i class="fa fa-plus"></i></button>
                         </span>
                     </div>
                 </div>
                 <div class="listlateral">
-                    <table class="table table-condensed" id="tb-projetos">
+                    <table class="table table-condensed" id="tb-milestones">
                     <thead>
                         <tr>
                             <th>Milestones</th>
+                            <th>&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>Versão 1.0</td></tr>
-                        <tr><td>Versão 2.0</td></tr>
+                        {%for mil in milestones%}
+                        <tr>
+                        <td><a href="/{{projeto.slug}}/{{mil.slug}}/" data-eid="{{mil.eid}}" class="load-m-btn">{{mil.name}}</a></td>
+                        <td><a href="#" data-eid="{{mil.eid}}" class="delete-m-btn"><i class="fa fa-trash-o"></i></a></td>
+                        </tr>
+                        {%else%}
+                        <tr><td class="norows" colspan="2"> - no milestones - </td></tr>
+                        {%endfor%}
                     </tbody>
                     </table>
                 </div>
@@ -100,7 +110,7 @@
 
                
 
-            <fieldset>
+            <fieldset id="formnewissue" {%if not projeto%}disabled="disabled"{%endif%}>
 
                 {%if projeto%}
                 <legend>Projeto: {{projeto.name}}</legend>
@@ -122,15 +132,16 @@
                         <select name="prioridade" id="prioridade" class="form-control">
                             <option value=""> - Prioridade - </option>
                             <option value="alta">Alta</option>
-                            <option value="meduia">Média</option>
+                            <option value="media">Média</option>
                             <option value="baixa">Baixa</option>
                         </select>
                     </div>
                     <div class="col-lg-3">
                         <select name="milestone" id="milestone" class="form-control">
                             <option value=""> - Milestone - </option>
-                            <option value="v10"> Versão 1.0</option>
-                            <option value="v20"> Versão 2.0 </option>
+                            {%for mil in milestones%}
+                            <option value="{{mil.eid}}" {%if milestone and mil.eid == milestone.eid%}selected{%endif%}>{{mil.name}}</option>
+                            {%endfor%}
                         </select>
                     </div>
                     <div class="col-lg-3">
@@ -146,9 +157,9 @@
                 <div class="row newtask">
                     <div class="col-lg-12">
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Nova issue ...">
+                            <input id="issuename" type="text" class="form-control" placeholder="Nova issue ...">
                             <span class="input-group-btn">
-                                <button class="btn btn-default" type="button"><i class="fa fa-plus"></i></button>
+                                <button id="btn-add-issue" class="btn btn-default" type="button"><i class="fa fa-plus"></i></button>
                             </span>
                         </div>
                     </div>
@@ -158,7 +169,7 @@
 
                 <div class="row listagem">
                     <div class="col-lg-12">
-                        <table class="table">
+                        <table class="table" id="tb-issues">
                             <thead>
                                 <tr>
                                     <th>Nome</th>
@@ -169,20 +180,74 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {%for issue in issueslist%}
                                 <tr>
-                                    <td>Tarefa 1</td>
-                                    <td>Versão 1.0</td>
-                                    <td class="text-center colicon"><i class="fa fa-play"></i></td>
-                                    <td class="text-center colicon"><i class="fa fa-arrow-up"></i></td>
-                                    <td class="text-center colicon"><i class="fa fa-bug"></i></td>
-                                </tr>                                
-                                <tr>
-                                    <td>Tarefa 2</td>
-                                    <td>Versão 1.0</td>
-                                    <td class="text-center colicon"><i class="fa fa-play"></i></td>
-                                    <td class="text-center colicon"><i class="fa fa-arrow-up"></i></td>
-                                    <td class="text-center colicon"><i class="fa fa-bug"></i></td>
+                                    <td>{{issue.name}}</td>
+                                    <td>{{issue.milestone.name}}</td>
+                                
+                                    {%if issue.status == "backlog"%}
+                                    <td class="text-center colicon text-muted" title="Backlog">
+                                        <i class="fa fa-bars"></i>
+                                    </td>
+                                    {%elif issue.status == "programada"%}
+                                    <td class="text-center colicon" title="Programada">
+                                        <i class="fa fa-crosshairs"></i>
+                                    </td>
+                                    {%elif issue.status == "emandamento"%}
+                                    <td class="text-center colicon text-success" title="Em andamento">
+                                        <i class="fa fa-play"></i>
+                                    </td>
+                                    {%elif issue.status == "concluida"%}
+                                    <td class="text-center colicon text-muted" title="Concluída">
+                                        <i class="fa fa-thumbs-o-up"></i>
+                                    </td>
+                                    {%else%}
+                                    <td class="text-center colicon text-muted">
+                                        -
+                                    </td>
+                                    {%endif%}
+                
+                                    {%if issue.prioridade == "alta"%}
+                                    <td class="text-center colicon text-danger">
+                                        <i class="fa fa-arrow-up"></i>
+                                    </td>
+                                    {%elif issue.prioridade == "media"%}
+                                    <td class="text-center colicon">
+                                        <i class="fa fa-minus"></i>
+                                    </td>
+                                    {%elif issue.prioridade == "baixa"%}
+                                    <td class="text-center colicon text-muted">
+                                        <i class="fa fa-arrow-down"></i>
+                                    </td>
+                                    {%else%}
+                                    <td class="text-center colicon text-muted">
+                                        -
+                                    </td>
+                                    {%endif%}
+
+                                    {%if issue.tipo == "bug"%}
+                                    <td class="text-center colicon">
+                                        <i class="fa fa-bug text-info"></i>
+                                    </td>
+                                    {%elif issue.tipo == "melhoria"%}
+                                    <td class="text-center colicon">
+                                        <i class="fa fa-plus text-info"></i>
+                                    </td>
+                                    {%elif issue.tipo == "tarefa"%}
+                                    <td class="text-center colicon">
+                                        <i class="fa fa-tasks text-info"></i>
+                                    </td>
+                                    {%else%}
+                                    <td class="text-center colicon text-muted">
+                                        -
+                                    </td>
+                                    {%endif%}
                                 </tr>
+                                {%else%}
+                                <tr>
+                                    <td colspan="5" class="norows">- no issues -</td>
+                                </tr>
+                                {%endfor%}
                             </tbody>
                         </table>
                     </div>

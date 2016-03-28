@@ -24,7 +24,12 @@
     border-bottom: 0px;
 }
 
- td.colicon{
+td.colicon{
     width: 50px;
     overflow: hidden;
- }
+}
+
+.norows{
+    color: #d1d1d1;
+    text-align: center;
+}
