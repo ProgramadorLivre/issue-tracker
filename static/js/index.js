@@ -114,4 +114,22 @@ $(document).ready(function(){
 
     });
 
+    var fc_delete_m = function(){
+        var tr = $(this).closest('tr');
+        $.post({
+            url: "/rm_milestone",
+            data:{
+                mid: $(this).attr("data-eid")
+            }
+        }).success(function(){
+            tr.css("background-color","#FF3700");
+            tr.fadeOut(400, function(){
+                tr.remove();
+            });
+            return false;
+        });
+        return false;
+    };
+    $(".delete-m-btn").click(fc_delete_m);
+
 });

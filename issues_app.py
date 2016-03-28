@@ -86,6 +86,7 @@ def listissues(project_slug):
     if not projeto:
         return redirect("/")
     projeto['eid'] = projeto.eid
+
     milestones = Milestones.search(Filter.project_id==projeto.eid)
     
     issueslist = [ complete_issue(issue) for issue in Issues.search(Filter.project_id==projeto.eid)]
