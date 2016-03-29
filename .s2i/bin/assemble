@@ -1,5 +1,29 @@
 #!/bin/bash
 source $STI_SCRIPTS_PATH/assemble
 
-echo "---> Running custom bower dependencies instalation ..."
-bower install
+
+if hash npm 2>/dev/null; then
+
+    if hash bower 2>/dev/null; then
+
+        echo "---> bower already installed!"
+
+    else
+
+        echo " ---> Installing bower  ..."
+        npm install -G bower
+
+    fi
+
+    echo "---> Running custom bower dependencies instalation ..."
+    bower install
+
+    
+else
+
+    echo "---> npm tool is not installed! Needed to install bower and other dependencies"
+
+fi
+
+
+
