@@ -129,9 +129,24 @@ def listissuesmilestone(project_slug, milestone_slug):
     projetos = Projects.all()
     milestones = Milestones.search( Filter.project_id==projeto.eid )
 
-    #return jsonify({"status":"ok", "projeto": projeto, "issueslist": issueslist})
-    return render_template("index.html", projetos = projetos, milestones = milestones, projeto = projeto, milestone = milestone, issueslist = issueslist)
+    # =========================================== Milestone Counting Graph
+    st_test = lambda x: x in ["programada","emandamento","concluida"]
+    ct_data = {
+        "total": Issues.count( (Filter.project_id==projeto.eid) & (Filter.milestone_id==milestone.eid) & (Filter.status.test(st_test)) ),
+        "todo": Issues.count( (Filter.project_id==projeto.eid) & (Filter.milestone_id==milestone.eid) & (Filter.status=="programada") ),
+        "doing": Issues.count( (Filter.project_id==projeto.eid) & (Filter.milestone_id==milestone.eid) & (Filter.status=="emandamento") ),
+        "done": Issues.count( (Filter.project_id==projeto.eid) & (Filter.milestone_id==milestone.eid) & (Filter.status=="concluida") ),
+    }
+    if ct_data['total'] == 0:
+        ct_data['total'] = 100
+    ct_data['todo_perc'] = round( (ct_data['todo'] * 100)/ct_data['total'] ,1)
+    ct_data['doing_perc'] = round( (ct_data['doing'] * 100)/ct_data['total'] ,1)
+    ct_data['done_perc'] = round( (ct_data['done'] * 100)/ct_data['total'] ,1)
 
+    #return jsonify({"status":"ok", "projeto": projeto, "issueslist": issueslist})
+    return render_template("index.html", projetos = projetos, 
+        milestones = milestones, projeto = projeto, milestone = milestone, 
+        cts = ct_data, issueslist = issueslist)
 
 
 def order_list(issueslist, orderby):
@@ -181,16 +196,16 @@ def add_issue():
     pid = data("pid")
     mid = data("mid")
     status = data("status")
-    tipo = data("tipo")
-    prioridade = data("prioridade")
+    type_issue = data("type")
+    priority = data("priority")
 
     newid = Issues.insert({
         "name": name,
         "project_id": int(pid),
         "milestone_id": int(mid),
         "status": status,
-        "type": tipo,
-        "priority": prioridade,
+        "type": type_issue,
+        "priority": priority,
         "datetime": str(datetime.now())
     })
     newissue = Issues.get(eid=newid)

@@ -75,13 +75,13 @@
                         {%if projeto%}
                         <input type="hidden" id="milestone-pid" value="{{projeto.eid}}">
                         {%endif%}
-                        <input id="milestonename" type="text" class="form-control" placeholder="New milestone">
+                        <input id="milestonename" {%if not projeto%}disabled="disabled"{%endif%} type="text" class="form-control" placeholder="New milestone">
                         <span class="input-group-btn">
-                            <button id="addmilestone" class="btn btn-default" type="button"><i class="fa fa-plus"></i></button>
+                            <button id="addmilestone" class="btn btn-default" {%if not projeto%}disabled="disabled"{%endif%} type="button"><i class="fa fa-plus"></i></button>
                         </span>
                     </div>
                 </div>
-                <div class="listlateral">
+                <div class="listlateral" >
                     <table class="table table-condensed" id="tb-milestones">
                     <thead>
                         <tr>
@@ -151,7 +151,7 @@
 
                 <div class="row">
                     <div class="col-lg-3">
-                        <select name="tipo" id="tipo" class="form-control">
+                        <select name="type" id="type" class="form-control">
                             <option value=""> - Type - </option>
                             <option value="bug">Bug</option>
                             <option value="melhoria">Melhoria</option>
@@ -159,7 +159,7 @@
                         </select>
                     </div>
                     <div class="col-lg-3">
-                        <select name="prioridade" id="prioridade" class="form-control">
+                        <select name="priority" id="priority" class="form-control">
                             <option value=""> - Priority - </option>
                             <option value="alta">Alta</option>
                             <option value="media">Média</option>
@@ -201,14 +201,14 @@
                 <div class="row"><div class="col-lg-12">
                     <h4>Milestone progress ({{milestone.name}})</h4>
                     <div class="progress">
-                      <div class="progress-bar progress-bar-success" style="width: 35%">
-                        35% Complete (success)
+                      <div class="progress-bar progress-bar-success" style="width: {{cts['done_perc']}}%">
+                        {{cts['done']}} Complete
                       </div>
-                      <div class="progress-bar progress-bar-warning" style="width: 45%">
-                        45% Em andamento
+                      <div class="progress-bar progress-bar-warning" style="width: {{cts['doing_perc']}}%">
+                        {{cts['doing']}} Doing
                       </div>
-                      <div class="progress-bar progress-bar-danger" style="width: 20%">
-                        20% Programada
+                      <div class="progress-bar progress-bar-danger" style="width: {{cts['todo_perc']}}%">
+                        {{cts['todo']}} TO-DO
                       </div>
                     </div>
                 </div></div>
@@ -254,39 +254,39 @@
                                     </td>
                                     {%endif%}
                 
-                                    {%if issue.prioridade == "alta"%}
+                                    {%if issue.priority == "alta"%}
                                     <td class="text-center colicon text-danger">
                                         <i class="fa fa-arrow-up"></i>
                                     </td>
-                                    {%elif issue.prioridade == "media"%}
+                                    {%elif issue.priority == "media"%}
                                     <td class="text-center colicon">
                                         <i class="fa fa-minus"></i>
                                     </td>
-                                    {%elif issue.prioridade == "baixa"%}
+                                    {%elif issue.priority == "baixa"%}
                                     <td class="text-center colicon text-muted">
                                         <i class="fa fa-arrow-down"></i>
                                     </td>
                                     {%else%}
                                     <td class="text-center colicon text-muted">
-                                        -
+                                        -{{issue.priority}}
                                     </td>
                                     {%endif%}
 
-                                    {%if issue.tipo == "bug"%}
+                                    {%if issue.type == "bug"%}
                                     <td class="text-center colicon">
                                         <i class="fa fa-bug text-info"></i>
                                     </td>
-                                    {%elif issue.tipo == "melhoria"%}
+                                    {%elif issue.type == "melhoria"%}
                                     <td class="text-center colicon">
                                         <i class="fa fa-plus text-info"></i>
                                     </td>
-                                    {%elif issue.tipo == "tarefa"%}
+                                    {%elif issue.type == "tarefa"%}
                                     <td class="text-center colicon">
                                         <i class="fa fa-tasks text-info"></i>
                                     </td>
                                     {%else%}
                                     <td class="text-center colicon text-muted">
-                                        -
+                                        -{{issue.type}}
                                     </td>
                                     {%endif%}
                                 </tr>

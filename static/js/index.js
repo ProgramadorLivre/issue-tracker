@@ -81,6 +81,9 @@ $(document).ready(function(){
     $(".delete-m-btn").click(fc_delete_m);
 
     var get_issue_html = function(issue){
+        console.log("Adicionando esta:");
+        console.log(issue);
+
         line = "<tr>";
         line += "<td>"+issue.name+"</td>";
         line += "<td>"+issue.milestone.name+"</td>";
@@ -103,13 +106,13 @@ $(document).ready(function(){
         line += "</td>";
 
 
-        if(issue.prioridade == "alta"){
+        if(issue.priority == "alta"){
             line += "<td class=\"text-center colicon text-danger\">";
             line += "<i class=\"fa fa-arrow-up\"></i>";
-        }else if(issue.prioridade == "media"){
+        }else if(issue.priority == "media"){
             line += "<td class=\"text-center colicon\">";
             line += "<i class=\"fa fa-minus\"></i>";
-        }else if(issue.prioridade == "baixa"){
+        }else if(issue.priority == "baixa"){
             line += "<td class=\"text-center colicon text-muted\">";
             line += "<i class=\"fa fa-arrow-down\"></i>";
         }else{
@@ -118,13 +121,13 @@ $(document).ready(function(){
         line += "</td>";
 
 
-        if(issue.tipo == "bug"){
+        if(issue.type == "bug"){
             line += "<td class=\"text-center colicon \">";
             line += "<i class=\"fa fa-bug text-info\"></i>";
-        }else if(issue.tipo == "melhoria"){
+        }else if(issue.type == "melhoria"){
             line += "<td class=\"text-center colicon\">";
             line += "<i class=\"fa fa-plus text-info\"></i>";
-        }else if(issue.tipo == "tarefa"){
+        }else if(issue.type == "tarefa"){
             line += "<td class=\"text-center colicon text-muted\">";
             line += "<i class=\"fa fa-tasks text-info\"></i>";
         }else{
@@ -141,8 +144,8 @@ $(document).ready(function(){
     $("#btn-add-issue").click(function(){
         var name = $("#issuename").val();
         var pid = $("#pid").val();
-        var tipo = $("#tipo").val();
-        var prioridade = $("#prioridade").val();
+        var issue_type = $("#type").val();
+        var priority = $("#priority").val();
         var milestone = $("#milestone").val();
         var status = $("#status").val();
 
@@ -152,9 +155,9 @@ $(document).ready(function(){
                 name: name,
                 pid: pid,
                 mid: milestone,
-                prioridade: prioridade,
+                priority: priority,
                 status: status,
-                tipo: tipo
+                type: issue_type
             }
         }).success(function(data){
             if(data.status=="ok"){
