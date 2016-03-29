@@ -4,26 +4,31 @@ source $STI_SCRIPTS_PATH/assemble
 
 if hash npm 2>/dev/null; then
 
-    if hash bower 2>/dev/null; then
+    echo "---> npm tool is already installed!"
 
-        echo "---> bower already installed!"
-
-    else
-
-        echo " ---> Installing bower  ..."
-        npm install -G bower
-
-    fi
-
-    echo "---> Running custom bower dependencies instalation ..."
-    bower install
-
-    
 else
 
-    echo "---> npm tool is not installed! Needed to install bower and other dependencies"
+    echo "---> npm tool is not installed! Needed to install bower and other dependencies. Trying to install..."
+
+    yum install -y nodejs npm --enablerepo=epel
+
+    npm install -g node-gyp bower
+fi
+
+if hash bower 2>/dev/null; then
+
+    echo "---> bower already installed!"
+
+else
+
+    echo " ---> Installing bower  ..."
+    npm install -G bower
 
 fi
 
+echo "---> Running custom bower dependencies instalation ..."
+bower install
+
+    
 
 
