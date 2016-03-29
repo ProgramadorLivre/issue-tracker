@@ -1,0 +1,5 @@
+#!/bin/bash
+source $STI_SCRIPTS_PATH/assemble
+
+echo "---> Running custom bower dependencies instalation ..."
+bower install
