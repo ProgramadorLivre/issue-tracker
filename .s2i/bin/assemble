@@ -10,9 +10,9 @@ else
 
     echo "---> npm tool is not installed! Needed to install bower and other dependencies. Trying to install..."
 
-    yum install -y nodejs npm --enablerepo=epel
+    sudo yum install -y nodejs npm --enablerepo=epel
 
-    npm install -g node-gyp bower
+    sudo npm install -g node-gyp bower
 fi
 
 if hash bower 2>/dev/null; then
