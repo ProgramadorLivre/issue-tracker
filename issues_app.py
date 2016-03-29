@@ -3,6 +3,7 @@
 from flask import Flask, render_template, jsonify, request, redirect
 from tinydb import TinyDB, Query
 from slugify import slugify
+from datetime import datetime
 
 db = TinyDB('issues.db.json')
 
@@ -40,7 +41,11 @@ def index():
 def addprojetc():
     data = request.form.get 
 
-    newp = Projects.insert({"name": data("name"), "slug":valid_slug(Projects,data("name"))})
+    newp = Projects.insert({
+        "name": data("name"), 
+        "slug":valid_slug(Projects,data("name")),
+        "datetime": str(datetime.now())
+    })
     newproject = Projects.get(eid=newp)
     newproject['eid'] = newproject.eid
 
@@ -62,7 +67,12 @@ def del_project():
 def addmilestone():
     data = request.form.get
 
-    newp = Milestones.insert({"name": data("name"), "project_id": int(data("pid")), "slug": valid_slug(Milestones,data("name"))})
+    newp = Milestones.insert({
+        "name": data("name"), 
+        "project_id": int(data("pid")), 
+        "slug": valid_slug(Milestones,data("name")),
+        "datetime": str(datetime.now())
+    })
     newmilestone = Milestones.get(eid=newp)
     newmilestone['eid'] = newmilestone.eid
 
@@ -90,6 +100,9 @@ def listissues(project_slug):
     milestones = Milestones.search(Filter.project_id==projeto.eid)
     
     issueslist = [ complete_issue(issue) for issue in Issues.search(Filter.project_id==projeto.eid)]
+    if "order" in request.args.keys():
+        order_list(issueslist, request.args['order'])
+
     projetos = Projects.all()
 
     #return jsonify({"status":"ok", "projeto": projeto, "issueslist": issueslist})
@@ -110,12 +123,39 @@ def listissuesmilestone(project_slug, milestone_slug):
     milestone['eid'] = milestone.eid
 
     issueslist = [ complete_issue(issue) for issue in Issues.search( (Filter.project_id==projeto.eid) & (Filter.milestone_id==milestone.eid) )]
+    if "order" in request.args.keys():
+        order_list(issueslist, request.args['order'])
 
     projetos = Projects.all()
     milestones = Milestones.search( Filter.project_id==projeto.eid )
 
     #return jsonify({"status":"ok", "projeto": projeto, "issueslist": issueslist})
     return render_template("index.html", projetos = projetos, milestones = milestones, projeto = projeto, milestone = milestone, issueslist = issueslist)
+
+
+
+def order_list(issueslist, orderby):
+    # from operator import itemgetter #, attrgetter, methodcaller
+    field, direction = orderby.split(",")
+
+    reversed = True if direction == "desc" else False
+
+    if field == "name":
+        sortkey = lambda x: x[field].lower()
+    if field == "status":
+        sortkey = lambda x: x['status']
+    if field == "milestone":
+        sortkey = lambda x: x['milestone']['name'].lower()
+    if field == "project":
+        sortkey = lambda x: x['project']['name'].lower()
+    if field == "priority":
+        sortkey = lambda x: x['priority']
+    if field == "type":
+        sortkey = lambda x: x['type']
+
+    issueslist.sort(key=sortkey, reverse=reversed)
+    # issueslist.sort(key=itemgetter(field), reverse=True if direction == "desc" else False)
+    # sorted(issueslist, key=itemgetter(field), reverse=True if direction == "desc" else False)
 
 
 def complete_issue(issue):
@@ -149,8 +189,9 @@ def add_issue():
         "project_id": int(pid),
         "milestone_id": int(mid),
         "status": status,
-        "tipo": tipo,
-        "prioridade": prioridade,
+        "type": tipo,
+        "priority": prioridade,
+        "datetime": str(datetime.now())
     })
     newissue = Issues.get(eid=newid)
     newissue['eid'] = newissue.eid

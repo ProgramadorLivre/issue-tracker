@@ -45,7 +45,7 @@
 
                 <div class="addfield">
                     <div class="input-group">
-                        <input id="projectname" type="text" class="form-control" placeholder="Novo projeto">
+                        <input id="projectname" type="text" class="form-control" placeholder="New project">
                         <span class="input-group-btn">
                             <button id="addproject" class="btn btn-default" type="button"><i class="fa fa-plus"></i></button>
                         </span>
@@ -55,7 +55,7 @@
                     <table class="table table-condensed" id="tb-projetos">
                     <thead>
                         <tr>
-                            <th>Projeto</th>
+                            <th>Project</th>
                             <th>&nbsp;</th>
                         </tr>
                     </thead>
@@ -75,7 +75,7 @@
                         {%if projeto%}
                         <input type="hidden" id="milestone-pid" value="{{projeto.eid}}">
                         {%endif%}
-                        <input id="milestonename" type="text" class="form-control" placeholder="Novo milestone">
+                        <input id="milestonename" type="text" class="form-control" placeholder="New milestone">
                         <span class="input-group-btn">
                             <button id="addmilestone" class="btn btn-default" type="button"><i class="fa fa-plus"></i></button>
                         </span>
@@ -102,6 +102,33 @@
                     </table>
                 </div>
 
+                <div class="filters">
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>&nbsp;</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Name</td><td><a href="?order=name,asc">asc</a></td><td><a href="?order=name,desc">desc</a></td>
+                            </tr><tr>
+                                <td>Milestone</td><td><a href="?order=milestone,asc">asc</a></td><td><a href="?order=milestone,desc">desc</a></td>
+                            </tr><tr>
+                                <td>Status</td><td><a href="?order=status,asc">asc</a></td><td><a href="?order=status,desc">desc</a></td>
+                            </tr><tr>
+                                <td>Priority</td><td><a href="?order=priority,asc">asc</a></td><td><a href="?order=priority,desc">desc</a></td>
+                            </tr><tr>
+                                <td>Type</td><td><a href="?order=type,asc">asc</a></td><td><a href="?order=type,desc">desc</a></td>
+                            </tr><tr>
+                                <td colspan="3" class="text-center"><a href="?">- No order -</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
 
                 <!-- Coluna lateral FIM -->
             </div>
@@ -113,8 +140,10 @@
             <fieldset id="formnewissue" {%if not projeto%}disabled="disabled"{%endif%}>
 
                 {%if projeto%}
-                <legend>Projeto: {{projeto.name}}</legend>
+                <legend>Project: {{projeto.name}}</legend>
                 <input type="hidden" id="pid" value="{{projeto.eid}}">
+                {%else%}
+                <legend>Project: <span class="norows">- no project -</span></legend>
                 {%endif%}
                 {%if milestone%}
                 <input type="hidden" id="mid" value="{{milestone.eid}}">
@@ -123,7 +152,7 @@
                 <div class="row">
                     <div class="col-lg-3">
                         <select name="tipo" id="tipo" class="form-control">
-                            <option value=""> - Tipo - </option>
+                            <option value=""> - Type - </option>
                             <option value="bug">Bug</option>
                             <option value="melhoria">Melhoria</option>
                             <option value="tarefa">Tarefa</option>
@@ -131,7 +160,7 @@
                     </div>
                     <div class="col-lg-3">
                         <select name="prioridade" id="prioridade" class="form-control">
-                            <option value=""> - Prioridade - </option>
+                            <option value=""> - Priority - </option>
                             <option value="alta">Alta</option>
                             <option value="media">Média</option>
                             <option value="baixa">Baixa</option>
@@ -168,16 +197,33 @@
             
             </fieldset>
 
+                {%if milestone%}
+                <div class="row"><div class="col-lg-12">
+                    <h4>Milestone progress ({{milestone.name}})</h4>
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-success" style="width: 35%">
+                        35% Complete (success)
+                      </div>
+                      <div class="progress-bar progress-bar-warning" style="width: 45%">
+                        45% Em andamento
+                      </div>
+                      <div class="progress-bar progress-bar-danger" style="width: 20%">
+                        20% Programada
+                      </div>
+                    </div>
+                </div></div>
+                {%endif%}
+
                 <div class="row listagem">
                     <div class="col-lg-12">
                         <table class="table" id="tb-issues">
                             <thead>
                                 <tr>
-                                    <th>Nome</th>
+                                    <th>Name</th>
                                     <th>Milestone</th>
                                     <th class="text-center colicon">Status</th>
-                                    <th class="text-center colicon">Poridade</th>
-                                    <th class="text-center colicon">Tipo</th>
+                                    <th class="text-center colicon">Priority</th>
+                                    <th class="text-center colicon">Type</th>
                                 </tr>
                             </thead>
                             <tbody>
