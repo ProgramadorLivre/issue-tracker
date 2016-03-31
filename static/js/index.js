@@ -1,3 +1,43 @@
+var message = {
+    show : function(msg_text){
+        $.notify({
+            "message":msg_text,
+            "icon": "fa fa-thumbs-o-up"
+        },{
+            type: "success", mouse_over: "pause", "delay": 10000
+        });
+    },
+    error : function(msg_text){
+        $.notify({
+            "message":msg_text,
+            "icon": "fa fa-exclamation"
+        },{
+            type: "danger", mouse_over: "pause", "delay": 10000
+        });
+    },
+    warn : function(msg_text){
+        $.notify({
+            "message":msg_text,
+            "icon": "fa fa-exclamation-triangle"
+        },{
+            type: "warning", mouse_over: "pause", "delay": 10000
+        });
+    },
+    info : function(msg_text){
+        $.notify({
+            "message":msg_text,
+            "icon": "fa fa-info"
+        },{
+            type: "info", mouse_over: "pause", "delay": 10000
+        });
+    }
+};
+/*
+    message.show("Ok, iniciado!");
+    message.error("Não sei não...");
+    message.warn("é, pode ser que sim...");
+    message.info("Tchãnã!");
+*/
 $(document).ready(function(){
 
     $("#addproject").click(function(){
@@ -195,5 +235,5 @@ $(document).ready(function(){
       width: "100%"
     });
 
-
 });
+

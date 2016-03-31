@@ -25,6 +25,7 @@
   "dependencies": {
     "bootstrap": "^3.3.6",
     "font-awesome": "fontawesome#^4.5.0",
-    "bootstrap-select": "^1.10.0"
+    "bootstrap-select": "^1.10.0",
+    "remarkable-bootstrap-notify": "^3.1.3"
   }
 }
