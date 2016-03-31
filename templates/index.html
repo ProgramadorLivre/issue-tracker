@@ -19,6 +19,7 @@
 
     <link rel="stylesheet" href="/static/bower_components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/bower_components/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/bower_components/bootstrap-select/dist/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="/static/css/index.css">
 
 </head>
@@ -147,32 +148,28 @@
 
                 <div class="row">
                     <div class="col-lg-3">
-                        <select name="type" id="type" class="form-control">
-                            <option value=""> - Type - </option>
+                        <select name="type" id="type" class="selectpicker  show-tick show-menu-arrow" title="Select issue type...">
                             <option value="bug">Bug</option>
                             <option value="melhoria">Melhoria</option>
                             <option value="tarefa">Tarefa</option>
                         </select>
                     </div>
                     <div class="col-lg-3">
-                        <select name="priority" id="priority" class="form-control">
-                            <option value=""> - Priority - </option>
+                        <select name="priority" id="priority" class="selectpicker  show-tick show-menu-arrow"  title="Select priority..">
                             <option value="alta">Alta</option>
                             <option value="media">Média</option>
                             <option value="baixa">Baixa</option>
                         </select>
                     </div>
                     <div class="col-lg-3">
-                        <select name="milestone" id="milestone" class="form-control">
-                            <option value=""> - Milestone - </option>
+                        <select name="milestone" id="milestone" class="selectpicker  show-tick show-menu-arrow" title="Select milestone..">
                             {%for mil in milestones%}
                             <option value="{{mil.eid}}" {%if milestone and mil.eid == milestone.eid%}selected{%endif%}>{{mil.name}}</option>
                             {%endfor%}
                         </select>
                     </div>
                     <div class="col-lg-3">
-                        <select name="status" id="status" class="form-control">
-                            <option value=""> - Status - </option>
+                        <select name="status" id="status" class="selectpicker  show-tick show-menu-arrow" title="Select status...">
                             <option value="backlog"> Backlog</option>
                             <option value="programada"> Programada </option>
                             <option value="emandamento"> Em andamento </option>
@@ -302,6 +299,7 @@
 
     <script typet="text/javascript" src="/static/bower_components/jquery/dist/jquery.min.js"></script>
     <script typet="text/javascript" src="/static/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script typet="text/javascript" src="/static/bower_components/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
     <script typet="text/javascript" src="/static/js/index.js"></script>
 
 </body>

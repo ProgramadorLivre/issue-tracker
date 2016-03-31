@@ -190,4 +190,10 @@ $(document).ready(function(){
     };
     $(".delete-m-btn").click(fc_delete_m);
 
+    $('.selectpicker').selectpicker({
+      // style: 'btn-primary',
+      width: "100%"
+    });
+
+
 });
