@@ -6,8 +6,8 @@ ENV APP_USER pythonuser
 ENV APP_ROOT /home/$APP_USER/src
 
 # Install basic environment
-RUN apk add --no-cache build-base git nodejs bash && \
-    adduser -u 1001 -G root -D -h /home/$APP_USER -s /bin/bash $APP_USER && \
+RUN apk add --no-cache build-base git nodejs && \
+    adduser -u 1001 -G root -D -h /home/$APP_USER -s /bin/sh $APP_USER && \
     echo '{ "allow_root": true }' > /home/$APP_USER/.bowerrc && \
     npm install -g bower && \
     npm cache clean 
@@ -23,7 +23,10 @@ RUN git clone https://github.com/ProgramadorLivre/issue-tracker.git $APP_ROOT &&
     chown -R 1001:0 /home/$APP_USER/ && \
     chmod -R g+rw /home/$APP_USER/ && \
     find /home/$APP_USER/ -type d -exec chmod g+x {} + && \
-    apk del build-base git nodejs -r --purge
+    npm uninstall bower && \
+    apk del build-base git nodejs -r --purge && \
+    rm -rf /usr/lib/node_modules
+
 
 # Getting ready to run...
 USER $APP_USER
