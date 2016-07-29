@@ -1,55 +1,111 @@
 # -*- encoding: utf-8 -*-
 
-from flask import Flask, render_template, jsonify, request, redirect
-from tinydb import TinyDB, Query
+from flask import Flask, render_template, jsonify, request, redirect, abort
 from slugify import slugify
 from datetime import datetime
+from peewee import *
+from playhouse.shortcuts import model_to_dict
 
-db = TinyDB('issues.db.json')
+db = SqliteDatabase("issues.db")
 
-Issues = db.table("issues")
-Projects = db.table("projects")
-Milestones = db.table("milestones")
-Filter = Query()
+# ==================================================== MODELS
+
+class BaseModel(Model):
+    class Meta:
+        database = db
+
+class SimpleTable(BaseModel):
+    name = CharField() 
+    slug = CharField()
+    datetime = DateTimeField(default=datetime.now)
+
+class Projects(SimpleTable):
+    class Meta:
+        db_table = "project"
+
+class Types(SimpleTable):
+    class Meta:
+        db_table = "type"
+
+class Prioritys(SimpleTable):
+    class Meta:
+        db_table = "priority"
+
+class Status(SimpleTable):
+    begin = BooleanField(default=False)
+    end = BooleanField(default=False)
+    class Meta:
+        db_table = "status"
+
+class Tags(SimpleTable):
+    class Meta:
+        db_table = "tag"
+
+
+class Milestones(BaseModel):
+    name = CharField()
+    project_id = ForeignKeyField(Projects, related_name='milestones')
+    slug = CharField()
+    datetime = DateTimeField(default=datetime.now)
+    class Meta:
+        db_table = "milestone"
+
+class Issues(BaseModel):
+    name = CharField(),
+    project_id = ForeignKeyField(Projects, related_name='issues')
+    milestone_id = ForeignKeyField(Milestones, related_name='issues')
+    type_id = ForeignKeyField(Types, related_name='issues')
+    priority_id = ForeignKeyField(Prioritys, related_name='issues')
+    status_id = ForeignKeyField(Status, related_name='issues')
+    datetime = DateTimeField(default=datetime.now)
+    class Meta:
+        db_table = "issue"
+
+class IssuesTags(BaseModel):
+    issue_id = ForeignKeyField(Issues, related_name='issues')
+    tag_id = ForeignKeyField(Tags, related_name='tags')
+
+# ==================================================== FLASK APP/CONFIG
 
 app = Flask(__name__)
 app.debug = True
 
+# ==================================================== UTIL METHODS
 
-def valid_slug(obj, text):
-    
+def valid_slug(klass, text):
+    '''
+    Verify if the slug already exists in the database
+    '''
     newslug = slugify(text)
     s = newslug
 
     ct = 0
     while True:
-        have = obj.get(Filter.slug==newslug)
+        have = klass.select(klass.slug==newslug)
         if not have:
             return newslug
         else:
             ct+=1
             newslug = "%s-%d" % (s, ct)
 
+# ==================================================== VIEWS
 
 @app.route("/")
 def index():
-    projetos = Projects.all()
+    projetos = Projects.select()
     return render_template("index.html", projetos=projetos)
 
 
 @app.route("/add_project", methods=("POST",))
 def addprojetc():
-    data = request.form.get 
+    data = request.form.get
 
-    newp = Projects.insert({
-        "name": data("name"), 
-        "slug":valid_slug(Projects,data("name")),
-        "datetime": str(datetime.now())
-    })
-    newproject = Projects.get(eid=newp)
-    newproject['eid'] = newproject.eid
-
-    return jsonify({"status":"ok","message":"Project added", "object": newproject })
+    savedproject = Projects.create(
+        name =  data("name"), 
+        slug = valid_slug(Projects, data("name")),
+    )
+    
+    return jsonify({"status":"ok","message":"Project added", "object": model_to_dict(savedproject) })
 
 
 @app.route("/rm_project", methods=("POST",))
@@ -58,7 +114,11 @@ def del_project():
     
     pid = int(data("pid"))
 
-    Projects.remove(eids=[pid])
+    proj = Projects.select().where(Projects.id == pid).get()
+    if proj:
+        proj.delete_instance()
+    else:
+        return abort(404)
 
     return jsonify({"status":"ok","message":"Project removed" })
 
@@ -66,17 +126,14 @@ def del_project():
 @app.route("/add_milestone", methods=("POST",))
 def addmilestone():
     data = request.form.get
+    print(data)
+    newmilestone = Milestones.create(
+        name = data("name"), 
+        project_id = int(data("pid")), 
+        slug = valid_slug(Milestones, data("name")),
+    )
 
-    newp = Milestones.insert({
-        "name": data("name"), 
-        "project_id": int(data("pid")), 
-        "slug": valid_slug(Milestones,data("name")),
-        "datetime": str(datetime.now())
-    })
-    newmilestone = Milestones.get(eid=newp)
-    newmilestone['eid'] = newmilestone.eid
-
-    return jsonify({"status": "ok", "message":"Milestone added", "object": newmilestone })
+    return jsonify({"status": "ok", "message":"Milestone added", "object": model_to_dict(newmilestone) })
 
 
 @app.route("/rm_milestone", methods=("POST",))
@@ -85,25 +142,52 @@ def del_milestone():
     
     mid = int(data("mid"))
 
-    Milestones.remove(eids=[mid])
+    mil = Milestones.select().where(Milestones.id == mid).get()
+    if mil:
+        mil.delete_instance()
+    else:
+        return abort(404)
 
     return jsonify({"status":"ok","message":"Milestone removed" })
 
 
+def get_order(klass, order):
+    '''
+    Return the field of the class for 'order_by' clause.
+    Must be the name of the field in the class.
+    '''
+    field, direction = request.args['order'].split(",")
+    if "_" in field:
+        '''
+        if receives 'milestone_id' transform to 'Milestone.id' and 
+        gets the memory object
+        '''
+        klassname = field.split("_")[0].capitalize()
+        klass_fieldname = field.split("_")[1]
+        fieldorder = eval( "{0}.{1}".format(klassname,klass_fieldname) )
+    else:
+        fieldorder = getattr(klass, field)[0]
+    if direction == "desc":
+        return fieldorder.desc()
+    else:
+        return fieldorder
+
+
 @app.route("/<project_slug>/")
 def listissues(project_slug):
-    projeto = Projects.get(Filter.slug==project_slug)
+    projeto = Projects.select().where(Projects.slug == project_slug).get()
     if not projeto:
         return redirect("/")
-    projeto['eid'] = projeto.eid
 
-    milestones = Milestones.search(Filter.project_id==projeto.eid)
-    
-    issueslist = [ complete_issue(issue) for issue in Issues.search(Filter.project_id==projeto.eid)]
+    milestones = Milestones.select().where(Milestones.project_id == projeto.id)
+        
     if "order" in request.args.keys():
-        order_list(issueslist, request.args['order'])
+        issueslist = Issues.select().where(Issues.project_id == projeto.id) \
+            .order_by(get_order(Issues, request.args['order']))
+    else:
+        issueslist = Issues.select().where(Issues.project_id == projeto.id)
 
-    projetos = Projects.all()
+    projetos = Projects.select()
 
     #return jsonify({"status":"ok", "projeto": projeto, "issueslist": issueslist})
     return render_template("index.html", projetos = projetos, milestones = milestones, projeto = projeto, issueslist = issueslist)
@@ -112,30 +196,33 @@ def listissues(project_slug):
 @app.route("/<project_slug>/<milestone_slug>/")
 def listissuesmilestone(project_slug, milestone_slug):
 
-    projeto = Projects.get(Filter.slug==project_slug)
+    projeto = Projects.select().where(Projects.slug == project_slug).get()
     if not projeto:
         return redirect("/")
-    projeto['eid'] = projeto.eid
 
-    milestone = Milestones.get( (Filter.project_id==projeto.eid) & (Filter.slug==milestone_slug) )
+    milestone = Milestones.select() \
+     .where( (Milestones.project_id == projeto.id) & (Milestones.slug == milestone_slug) ).get()
     if not milestone:
         return redirect("listissues", project_slug=project_slug)
-    milestone['eid'] = milestone.eid
 
-    issueslist = [ complete_issue(issue) for issue in Issues.search( (Filter.project_id==projeto.eid) & (Filter.milestone_id==milestone.eid) )]
     if "order" in request.args.keys():
-        order_list(issueslist, request.args['order'])
+        issueslist = Issues.select().join(Status).join(Milestones).join(Types) \
+            .join(Prioritys).join(Projects) \
+            .where(Issues.project_id == projeto.id) \
+            .order_by(get_order(Issues, request.args['order']))
+    else:
+        issueslist = Issues.select().where(Issues.project_id == projeto.id)
 
-    projetos = Projects.all()
-    milestones = Milestones.search( Filter.project_id==projeto.eid )
+    projetos = Projects.select()
+    milestones = Milestones.select().where( Milestones.project_id == projeto.id )
 
     # =========================================== Milestone Counting Graph
-    st_test = lambda x: x in ["programada","emandamento","concluida"]
+    query = Issues.select(Issues, fn.Count(Issues.id)).join(Status)
     ct_data = {
-        "total": Issues.count( (Filter.project_id==projeto.eid) & (Filter.milestone_id==milestone.eid) & (Filter.status.test(st_test)) ),
-        "todo": Issues.count( (Filter.project_id==projeto.eid) & (Filter.milestone_id==milestone.eid) & (Filter.status=="programada") ),
-        "doing": Issues.count( (Filter.project_id==projeto.eid) & (Filter.milestone_id==milestone.eid) & (Filter.status=="emandamento") ),
-        "done": Issues.count( (Filter.project_id==projeto.eid) & (Filter.milestone_id==milestone.eid) & (Filter.status=="concluida") ),
+        "total": query.where( (Issues.project_id==projeto.id) & (Issues.milestone_id==milestone.id) ).count(),
+        "todo": query.where( (Issues.project_id==projeto.id) & (Issues.milestone_id==milestone.id) & (Status.begin==True) ).count(),
+        "doing": query.where( (Issues.project_id==projeto.id) & (Issues.milestone_id==milestone.id) & (Status.end==False & Status.begin==False) ).count(),
+        "done": query.where( (Issues.project_id==projeto.id) & (Issues.milestone_id==milestone.id) & (Status.end==True) ).count(),
     }
     if ct_data['total'] == 0:
         ct_data['total'] = 100
@@ -149,44 +236,6 @@ def listissuesmilestone(project_slug, milestone_slug):
         cts = ct_data, issueslist = issueslist)
 
 
-def order_list(issueslist, orderby):
-    # from operator import itemgetter #, attrgetter, methodcaller
-    field, direction = orderby.split(",")
-
-    reversed = True if direction == "desc" else False
-
-    if field == "name":
-        sortkey = lambda x: x[field].lower()
-    if field == "status":
-        sortkey = lambda x: x['status']
-    if field == "milestone":
-        sortkey = lambda x: x['milestone']['name'].lower()
-    if field == "project":
-        sortkey = lambda x: x['project']['name'].lower()
-    if field == "priority":
-        sortkey = lambda x: x['priority']
-    if field == "type":
-        sortkey = lambda x: x['type']
-
-    issueslist.sort(key=sortkey, reverse=reversed)
-    # issueslist.sort(key=itemgetter(field), reverse=True if direction == "desc" else False)
-    # sorted(issueslist, key=itemgetter(field), reverse=True if direction == "desc" else False)
-
-
-def complete_issue(issue):
-    
-    if issue['project_id']:
-        proj = Projects.get(eid=issue['project_id'])
-        proj['eid'] = proj.eid
-        issue['project'] = proj
-    
-    if issue['milestone_id']:
-        milestone = Milestones.get(eid=issue['milestone_id'])
-        milestone['eid'] = milestone.eid
-        issue['milestone'] = milestone
-    
-    return issue
-
 
 @app.route("/add_issue", methods=("POST",))
 def add_issue():
@@ -199,17 +248,14 @@ def add_issue():
     type_issue = data("type")
     priority = data("priority")
 
-    newid = Issues.insert({
-        "name": name,
-        "project_id": int(pid),
-        "milestone_id": int(mid),
-        "status": status,
-        "type": type_issue,
-        "priority": priority,
-        "datetime": str(datetime.now())
-    })
-    newissue = Issues.get(eid=newid)
-    newissue['eid'] = newissue.eid
+    newissue = Issues.create(
+        name = name,
+        project_id = int(pid),
+        milestone_id = int(mid),
+        status_id = status,
+        type_id = type_issue,
+        priority_id = priority
+    )
 
     return jsonify({"status":"ok", "message":"Issue added", "object": complete_issue(newissue)})
 

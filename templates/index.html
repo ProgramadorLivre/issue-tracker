@@ -59,9 +59,9 @@
                     </thead>
                     <tbody>
                         {%for p in projetos%}
-                        <tr {%if projeto and projeto.eid == p.eid%}class="active"{%endif%}>
-                        <td><a href="/{{p.slug}}/" data-eid="{{p.eid}}" class="load-p-btn">{{p.name}}</a></td>
-                        <td><a href="#" data-eid="{{p.eid}}" class="delete-p-btn"><i class="fa fa-trash-o"></i></a></td>
+                        <tr {%if projeto and projeto.id == p.id%}class="active"{%endif%}>
+                        <td><a href="/{{p.slug}}/" data-id="{{p.id}}" class="load-p-btn">{{p.name}}</a></td>
+                        <td><a href="#" data-id="{{p.id}}" class="delete-p-btn"><i class="fa fa-trash-o"></i></a></td>
                         </tr>
                         {%endfor%}
                     </tbody>
@@ -71,7 +71,7 @@
                 <div class="addfield">
                     <div class="input-group">
                         {%if projeto%}
-                        <input type="hidden" id="milestone-pid" value="{{projeto.eid}}">
+                        <input type="hidden" id="milestone-pid" value="{{projeto.id}}">
                         {%endif%}
                         <input id="milestonename" {%if not projeto%}disabled="disabled"{%endif%} type="text" class="form-control" placeholder="New milestone">
                         <span class="input-group-btn">
@@ -90,8 +90,8 @@
                     <tbody>
                         {%for mil in milestones%}
                         <tr>
-                        <td><a href="/{{projeto.slug}}/{{mil.slug}}/" data-eid="{{mil.eid}}" class="load-m-btn">{{mil.name}}</a></td>
-                        <td><a href="#" data-eid="{{mil.eid}}" class="delete-m-btn"><i class="fa fa-trash-o"></i></a></td>
+                        <td><a href="/{{projeto.slug}}/{{mil.slug}}/" data-id="{{mil.id}}" class="load-m-btn">{{mil.name}}</a></td>
+                        <td><a href="#" data-id="{{mil.id}}" class="delete-m-btn"><i class="fa fa-trash-o"></i></a></td>
                         </tr>
                         {%else%}
                         <tr><td class="norows" colspan="2"> - no milestones - </td></tr>
@@ -113,13 +113,13 @@
                             <tr>
                                 <td>Name</td><td><a href="?order=name,asc">asc</a></td><td><a href="?order=name,desc">desc</a></td>
                             </tr><tr>
-                                <td>Milestone</td><td><a href="?order=milestone,asc">asc</a></td><td><a href="?order=milestone,desc">desc</a></td>
+                                <td>Milestone</td><td><a href="?order=milestones_id,asc">asc</a></td><td><a href="?order=milestones_id,desc">desc</a></td>
                             </tr><tr>
-                                <td>Status</td><td><a href="?order=status,asc">asc</a></td><td><a href="?order=status,desc">desc</a></td>
+                                <td>Status</td><td><a href="?order=status_id,asc">asc</a></td><td><a href="?order=status_id,desc">desc</a></td>
                             </tr><tr>
-                                <td>Priority</td><td><a href="?order=priority,asc">asc</a></td><td><a href="?order=priority,desc">desc</a></td>
+                                <td>Priority</td><td><a href="?order=prioritys_id,asc">asc</a></td><td><a href="?order=prioritys_id,desc">desc</a></td>
                             </tr><tr>
-                                <td>Type</td><td><a href="?order=type,asc">asc</a></td><td><a href="?order=type,desc">desc</a></td>
+                                <td>Type</td><td><a href="?order=types_id,asc">asc</a></td><td><a href="?order=types_id,desc">desc</a></td>
                             </tr><tr>
                                 <td colspan="3" class="text-center"><a href="?">- No order -</a></td>
                             </tr>
@@ -139,12 +139,12 @@
 
                 {%if projeto%}
                 <legend>Project: {{projeto.name}}</legend>
-                <input type="hidden" id="pid" value="{{projeto.eid}}">
+                <input type="hidden" id="pid" value="{{projeto.id}}">
                 {%else%}
                 <legend>Project: <span class="norows">- no project -</span></legend>
                 {%endif%}
                 {%if milestone%}
-                <input type="hidden" id="mid" value="{{milestone.eid}}">
+                <input type="hidden" id="mid" value="{{milestone.id}}">
                 {%endif%}
 
                 <div class="row">
@@ -165,7 +165,7 @@
                     <div class="col-lg-3">
                         <select name="milestone" id="milestone" class="selectpicker  show-tick show-menu-arrow" title="Select milestone..">
                             {%for mil in milestones%}
-                            <option value="{{mil.eid}}" {%if milestone and mil.eid == milestone.eid%}selected{%endif%}>{{mil.name}}</option>
+                            <option value="{{mil.id}}" {%if milestone and mil.id == milestone.id%}selected{%endif%}>{{mil.name}}</option>
                             {%endfor%}
                         </select>
                     </div>

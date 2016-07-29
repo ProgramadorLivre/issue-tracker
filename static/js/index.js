@@ -50,8 +50,8 @@ $(document).ready(function(){
             if(data.status=="ok"){
 
                 line = "<tr>";
-                line += "<td><a href=\"/"+data.object.slug+"/\" data-eid=\""+data.object.eid+"\" class=\"load-p-btn\">"+data.object.name+"</a></td>";
-                line += "<td><a href=\"#\" data-eid=\""+data.object.eid+"\" class=\"delete-p-btn\"><i class=\"fa fa-trash-o\"></i></a></td>";
+                line += "<td><a href=\"/"+data.object.slug+"/\" data-id=\""+data.object.id+"\" class=\"load-p-btn\">"+data.object.name+"</a></td>";
+                line += "<td><a href=\"#\" data-id=\""+data.object.id+"\" class=\"delete-p-btn\"><i class=\"fa fa-trash-o\"></i></a></td>";
                 line += "</tr>";
 
                 $('#tb-projetos > tbody:last-child').append(line);
@@ -66,7 +66,7 @@ $(document).ready(function(){
         $.post({
             url: "/rm_project",
             data:{
-                pid: $(this).attr("data-eid")
+                pid: $(this).attr("data-id")
             }
         }).success(function(){
             console.log("Deletado!");
@@ -91,8 +91,8 @@ $(document).ready(function(){
             if(data.status=="ok"){
 
                 line = "<tr>";
-                line += "<td><a href=\"/"+data.object.slug+"/\" data-eid=\""+data.object.eid+"\" class=\"load-p-btn\">"+data.object.name+"</a></td>";
-                line += "<td><a href=\"#\" data-eid=\""+data.object.eid+"\" class=\"delete-m-btn\"><i class=\"fa fa-trash-o\"></i></a></td>";
+                line += "<td><a href=\"/"+data.object.slug+"/\" data-id=\""+data.object.id+"\" class=\"load-p-btn\">"+data.object.name+"</a></td>";
+                line += "<td><a href=\"#\" data-id=\""+data.object.id+"\" class=\"delete-m-btn\"><i class=\"fa fa-trash-o\"></i></a></td>";
                 line += "</tr>";
 
                 $('#tb-milestones > tbody:last-child').append(line);
@@ -107,7 +107,7 @@ $(document).ready(function(){
         $.post({
             url: "/rm_milestone",
             data:{
-                mid: $(this).attr("data-eid")
+                mid: $(this).attr("data-id")
             }
         }).success(function(){
             tr.css("background-color","#FF3700");
@@ -203,7 +203,7 @@ $(document).ready(function(){
             if(data.status=="ok"){
 
                 var milestoneatual = $("#mid").val()
-                if(milestoneatual == data.object.milestone.eid){
+                if(milestoneatual == data.object.milestone.id){
                     $('#tb-issues > tbody:last-child').append(get_issue_html(data.object));
                 }
             }
@@ -217,7 +217,7 @@ $(document).ready(function(){
         $.post({
             url: "/rm_milestone",
             data:{
-                mid: $(this).attr("data-eid")
+                mid: $(this).attr("data-id")
             }
         }).success(function(){
             tr.css("background-color","#FF3700");
